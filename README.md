@@ -26,8 +26,8 @@ This repository will contain **50 commonly used plots for statistics, data scien
 </td>
 
 <td align="center">
-<a href="3_PCA">
-<img src="3_PCA/pca_plot.png" width="300"><br>
+<a href="3_RegressionScatterPlot">
+<img src="3_RegressionScatterPlot/demo.png" width="300"><br>
 <b>3. PCA Plot</b>
 </a>
 </td>
