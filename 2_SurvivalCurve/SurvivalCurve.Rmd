@@ -1,0 +1,315 @@
+---
+title: "Survival curve"
+output:
+  pdf_document: default
+  html_document: default
+date: "2026-03-14"
+---
+
+```{r setup}
+# Clear environment to avoid corrupted variables
+rm(list = ls())
+
+# Install required package if missing
+if (!require("survminer")) install.packages("survminer")
+
+# Load libraries
+library(survminer)
+library(survival)
+```
+
+```{r load_data}
+# Load lung dataset from survival package
+data(lung)
+
+# Inspect dataset
+dim(lung)
+head(lung)
+summary(lung)
+```
+
+```{r fit_single_group}
+# Fit Kaplan-Meier model for overall survival
+fit1 <- survfit(Surv(time, status) ~ 1, data = lung)
+```
+
+```{r plot_single_group}
+# Plot overall survival curve
+ggsurvplot(
+  fit1,
+  data = lung,
+  palette = "#2E9FDF"
+)
+```
+
+```{r fit_two_groups}
+# Fit survival model by sex
+fit <- survfit(Surv(time, status) ~ sex, data = lung)
+```
+
+```{r plot_two_groups}
+# Plot survival curve grouped by sex
+ggsurvplot(
+  fit,
+  data = lung
+)
+```
+```{r dark_palette}
+# Plot survival curve with Dark2 palette
+ggsurvplot(
+  fit,
+  linetype = "strata",
+  conf.int = TRUE,
+  pval = TRUE,
+  palette = "Dark2"
+)
+```
+
+```{r grey_palette}
+# Plot survival curve with grey palette
+ggsurvplot(
+  fit,
+  linetype = "strata",
+  conf.int = TRUE,
+  pval = TRUE,
+  palette = "grey"
+)
+```
+
+```{r cumulative_hazard}
+# Plot cumulative hazard curve
+ggsurvplot(
+  fit,
+  data = lung,
+  conf.int = TRUE,
+  fun = "cumhaz"
+)
+```
+
+```{r add_all}
+# Add overall survival curve
+ggsurvplot(
+  fit,
+  data = lung,
+  conf.int = TRUE,
+  pval = TRUE,
+  surv.median.line = "hv",
+  add.all = TRUE
+)
+```
+
+```{r customized_plot}
+# Customized survival curve
+ggsurvplot(
+  fit,
+  data = lung,
+  size = 1,
+  palette = c("#E7B800", "#2E9FDF"),
+  conf.int = TRUE,
+  pval = TRUE,
+  risk.table = TRUE,
+  risk.table.col = "strata",
+  legend.labs = c("Male", "Female"),
+  risk.table.height = 0.25,
+  ggtheme = theme_bw()
+)
+```
+
+```{r customized_axis}
+# Further customized survival curve
+ggsurvplot(
+  fit,
+  data = lung,
+  risk.table = TRUE,
+  pval = TRUE,
+  conf.int = TRUE,
+  xlim = c(0,500),
+  xlab = "Time in days",
+  break.time.by = 100,
+  ggtheme = theme_light(),
+  risk.table.y.text.col = TRUE,
+  risk.table.y.text = FALSE
+)
+```
+
+```{r uber_custom}
+# Uber customized survival curve
+ggsurv <- ggsurvplot(
+  fit,
+  data = lung,
+  risk.table = TRUE,
+  pval = TRUE,
+  conf.int = TRUE,
+  palette = c("#E7B800", "#2E9FDF"),
+  xlim = c(0,500),
+  xlab = "Time in days",
+  break.time.by = 100,
+  ggtheme = theme_light(),
+  risk.table.y.text.col = TRUE,
+  risk.table.height = 0.25,
+  risk.table.y.text = FALSE,
+  ncensor.plot = TRUE,
+  ncensor.plot.height = 0.25,
+  conf.int.style = "step",
+  surv.median.line = "hv",
+  legend.labs = c("Male", "Female")
+)
+
+ggsurv
+```
+
+```{r colon_data}
+# Inspect colon dataset
+head(colon)
+```
+
+```{r colon_fit}
+# Fit survival model using colon dataset
+fit2 <- survfit(Surv(time, status) ~ rx + adhere, data = colon)
+```
+
+```{r colon_plot}
+# Plot multi-group survival curve
+ggsurvplot(
+  fit2,
+  pval = TRUE,
+  break.time.by = 800,
+  risk.table = TRUE,
+  risk.table.height = 0.5
+)
+```
+```{r export_everything}
+
+# output directory
+outdir <- "/Users/libingchen/Desktop/R_plot/2_SurvivalCurve"
+
+if(!dir.exists(outdir)){
+  dir.create(outdir, recursive = TRUE)
+}
+
+# Save datasets
+
+write.csv(lung,
+          file=file.path(outdir,"lung_dataset.csv"),
+          row.names=FALSE)
+
+write.csv(colon,
+          file=file.path(outdir,"colon_dataset.csv"),
+          row.names=FALSE)
+
+# Overall survival
+
+p_overall <- ggsurvplot(
+  fit1,
+  data = lung,
+  palette="#2E9FDF"
+)
+
+ggsave(
+  file.path(outdir,"overall_survival.png"),
+  plot=p_overall$plot,
+  width=6,height=6,dpi=300)
+
+ggsave(
+  file.path(outdir,"overall_survival.pdf"),
+  plot=p_overall$plot,
+  width=6,height=6)
+
+# Sex survival
+
+p_sex <- ggsurvplot(
+  fit,
+  data = lung
+)
+
+ggsave(
+  file.path(outdir,"sex_survival.png"),
+  plot=p_sex$plot,
+  width=6,height=6,dpi=300)
+
+# Dark2 palette
+
+p_dark <- ggsurvplot(
+  fit,
+  linetype="strata",
+  conf.int=TRUE,
+  pval=TRUE,
+  palette="Dark2"
+)
+
+ggsave(
+  file.path(outdir,"survival_dark2.png"),
+  plot=p_dark$plot,
+  width=6,height=6,dpi=300)
+
+# Grey palette
+p_grey <- ggsurvplot(
+  fit,
+  linetype="strata",
+  conf.int=TRUE,
+  pval=TRUE,
+  palette="grey"
+)
+
+ggsave(
+  file.path(outdir,"survival_grey.png"),
+  plot=p_grey$plot,
+  width=6,height=6,dpi=300)
+
+# Cumulative hazard
+
+p_hazard <- ggsurvplot(
+  fit,
+  data=lung,
+  conf.int=TRUE,
+  fun="cumhaz"
+)
+
+ggsave(
+  file.path(outdir,"cumulative_hazard.png"),
+  plot=p_hazard$plot,
+  width=6,height=6,dpi=300)
+
+# Add overall curve
+
+p_addall <- ggsurvplot(
+  fit,
+  data=lung,
+  conf.int=TRUE,
+  pval=TRUE,
+  surv.median.line="hv",
+  add.all=TRUE
+)
+
+ggsave(
+  file.path(outdir,"add_all_survival.png"),
+  plot=p_addall$plot,
+  width=6,height=6,dpi=300)
+
+# Uber customized
+
+ggsave(
+  file.path(outdir,"uber_survival.png"),
+  plot=ggsurv$plot,
+  width=6,height=6,dpi=300)
+
+# Colon dataset survival
+
+p_colon <- ggsurvplot(
+  fit2,
+  pval=TRUE,
+  break.time.by=800,
+  risk.table=TRUE,
+  risk.table.height=0.5
+)
+
+ggsave(
+  file.path(outdir,"colon_survival.png"),
+  plot=p_colon$plot,
+  width=6,height=6,dpi=300)
+
+
+cat("All plots and datasets exported to:\n")
+cat(outdir)
+
+```

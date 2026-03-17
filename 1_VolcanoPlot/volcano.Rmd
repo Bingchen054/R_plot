@@ -1,0 +1,68 @@
+---
+title: "vcolcanoplot"
+output:
+  pdf_document: default
+  html_document: default
+date: "2026-03-13"
+---
+
+```{r setup}
+library(ggplot2)
+library(ggrepel)
+library(RColorBrewer)
+library(grid)
+library(scales)
+```
+
+
+```{r data}
+df <- read.table("data.txt", sep="\t", header=TRUE, check.names=FALSE)
+
+df$group <- as.factor(
+  ifelse(df$padj < 0.05 & abs(df$log2FoldChange) >= 2,
+         ifelse(df$log2FoldChange >= 2, "up", "down"),
+         "NS")
+)
+
+df$label <- ifelse(
+  df$padj < 0.05 & abs(df$log2FoldChange) >= 4,
+  as.character(df$gene),
+  ""
+)
+```
+
+```{r plot}
+p <- ggplot(df, aes(log2FoldChange, -log10(padj), fill=group)) +
+  geom_point(color="black", alpha=0.6, size=3, shape=21) +
+  theme_bw() +
+  theme(panel.grid=element_blank(),
+        axis.text=element_text(color='#333c41', size=10),
+        legend.text=element_text(color='#333c41', size=10),
+        legend.title=element_blank(),
+        axis.title=element_text(size=12)) +
+  geom_vline(xintercept=c(-2, 2), lty=3, color='black', lwd=0.8) +
+  geom_vline(xintercept=c(-4, 4), lty=3, color='red', lwd=0.8) +
+  geom_hline(yintercept=-log10(0.05), lty=3, color='black', lwd=0.8) +
+  scale_fill_manual(values=c('blue', 'grey', 'red')) +
+  labs(title="Volcano plot",
+       x="log2 fold change",
+       y="-log10 padj") +
+  geom_text_repel(aes(label=label),
+                  max.overlaps=10000,
+                  size=2,
+                  box.padding=unit(0.8,'lines'),
+                  point.padding=unit(0.8,'lines'),
+                  segment.color='black',
+                  show.legend=FALSE)
+
+p
+```
+```{r export}
+ggsave(
+  filename = "volcano_plot.png",
+  plot = p,
+  width = 6,
+  height = 8,
+  dpi = 300
+)
+```
