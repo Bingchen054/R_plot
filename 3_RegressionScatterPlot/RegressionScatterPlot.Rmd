@@ -1,0 +1,162 @@
+---
+title: "Regression Scatter Plots with Marginal Distributions"
+author: "Bingchen Li"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_depth: 2
+    theme: united
+---
+
+```{r setup, message=FALSE, warning=FALSE}
+
+packages <- c("tidyverse", "ggpubr", "ggExtra")
+installed <- rownames(installed.packages())
+
+for (p in packages) {
+  if (!(p %in% installed)) {
+    install.packages(p)
+  }
+}
+
+library(tidyverse)
+library(ggpubr)
+library(ggExtra)
+
+df <- read.csv("/Users/libingchen/Desktop/R_plot/3_RegressionScatterPlot/data.csv")
+
+# 统一列名（适配你的数据）
+df <- df %>%
+  rename(
+    x = X_value,
+    y = Y_value
+  )
+
+# 处理 group（有就用，没有就自动生成两组）
+if (!"group" %in% colnames(df)) {
+  possible_names <- c("Group", "group_id", "grp")
+  found <- possible_names[possible_names %in% colnames(df)]
+  
+  if (length(found) > 0) {
+    df <- df %>% rename(group = all_of(found[1]))
+  } else {
+    df$group <- rep(c("1", "2"), length.out = nrow(df))
+  }
+}
+
+df$group <- as.factor(df$group)
+
+# 计算相关性（按组）
+cor_label <- df %>%
+  group_by(group) %>%
+  summarise(
+    r = cor(x, y),
+    p = cor.test(x, y)$p.value,
+    .groups = "drop"
+  ) %>%
+  mutate(
+    label = paste0(group, ": R = ",
+                   round(r, 3), ", p < 0.001")
+  )
+
+cols <- c("#7DB7D7", "#B39DDB")
+
+base_plot <- function() {
+  ggplot(df, aes(x, y, color = group, fill = group)) +
+    
+    geom_point(alpha = 0.7, size = 2) +
+    
+    # 拟合线 + 同色CI（实线）
+    geom_smooth(
+      method = "lm",
+      se = TRUE,
+      linewidth = 1.2,
+      alpha = 0.2
+    ) +
+    
+    scale_color_manual(values = cols) +
+    scale_fill_manual(values = cols) +
+    
+    theme_classic(base_size = 14) +
+    
+    # 四周封闭
+    theme(
+      legend.position = "none",
+      panel.border = element_rect(color = "black", fill = NA, linewidth = 1)
+    ) +
+    
+    labs(x = "X value", y = "Y value") +
+    
+    # group 字体变小
+    annotate("text", x = min(df$x)+2, y = max(df$y),
+             label = cor_label$label[1],
+             color = cols[1], hjust = 0, size = 4) +
+    
+    annotate("text", x = min(df$x)+2, y = max(df$y)-3,
+             label = cor_label$label[2],
+             color = cols[2], hjust = 0, size = 4)
+}
+```
+
+```{r density_plot}
+p <- base_plot()
+
+ggExtra::ggMarginal(
+  p,
+  type = "density",
+  groupColour = TRUE,
+  groupFill = TRUE
+)
+```
+```{r hist_plot}
+
+p <- base_plot()
+
+ggExtra::ggMarginal(
+  p,
+  type = "histogram",
+  bins = 20,
+  groupColour = TRUE,
+  groupFill = TRUE,
+  alpha = 0.4
+)
+```
+```{r save_plots, message=FALSE, warning=FALSE}
+
+# ===== Density Plot =====
+p_density <- ggExtra::ggMarginal(
+  base_plot(),
+  type = "density",
+  groupColour = TRUE,
+  groupFill = TRUE,
+  alpha = 0.4
+)
+
+ggsave(
+  filename = "/Users/libingchen/Desktop/R_plot/3_RegressionScatterPlot/density_plot.png",
+  plot = p_density,
+  width = 6,
+  height = 6,
+  dpi = 300
+)
+
+# ===== Histogram Plot =====
+p_hist <- ggExtra::ggMarginal(
+  base_plot(),
+  type = "histogram",
+  bins = 20,
+  groupColour = TRUE,
+  groupFill = TRUE,
+  alpha = 0.4
+)
+
+ggsave(
+  filename = "/Users/libingchen/Desktop/R_plot/3_RegressionScatterPlot/histogram_plot.png",
+  plot = p_hist,
+  width = 6,
+  height = 6,
+  dpi = 300
+)
+```
