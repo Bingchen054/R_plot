@@ -37,8 +37,8 @@ This repository will contain **50 commonly used plots for statistics, data scien
 <tr>
 
 <td align="center">
-<a href="4_Heatmap">
-<img src="4_Heatmap/heatmap.png" width="300"><br>
+<a href="4_heatmap">
+<img src="4_heatmap/heatmap.png" width="300"><br>
 <b>4. Heatmap</b>
 </a>
 </td>
