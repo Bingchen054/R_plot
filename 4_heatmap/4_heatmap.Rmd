@@ -1,0 +1,82 @@
+---
+title: "Heatmap"
+output:
+  pdf_document: default
+  html_document: default
+date: "2026-03-18"
+---
+
+## 1. Setup
+```{r setup, message=FALSE, warning=FALSE}
+packages <- c("pheatmap")
+
+installed <- rownames(installed.packages())
+
+for (p in packages) {
+  if (!(p %in% installed)) {
+    install.packages(p)
+  }
+}
+
+library(pheatmap)
+
+packages <- c("pheatmap", "ggplot2")
+
+installed <- rownames(installed.packages())
+
+for (p in packages) {
+  if (!(p %in% installed)) {
+    install.packages(p)
+  }
+}
+
+library(pheatmap)
+library(ggplot2)
+
+```
+
+## 2. route
+```{r parameters}
+setwd("/Users/libingchen/Desktop/R_plot/4_heatmap")
+
+inputFile <- "input.txt"      
+groupFile <- "group.txt"     
+outFile <- "heatmap.pdf"      
+```
+
+## 3. readdata
+```{r load_data}
+rt <- read.table(inputFile,
+                 header = TRUE,
+                 sep = "\t",
+                 row.names = 1,
+                 check.names = FALSE)
+
+ann <- read.table(groupFile,
+                  header = TRUE,
+                  sep = "\t",
+                  row.names = 1,
+                  check.names = FALSE)
+```
+
+## 4. Heatmap
+```{r plot_heatmap, fig.width=6, fig.height=6, dpi=300}
+
+p <- pheatmap(rt,
+              annotation = ann,
+              cluster_cols = TRUE,
+              color = colorRampPalette(c("blue", "white", "red"))(50),
+              show_colnames = TRUE,
+              scale = "row",
+              fontsize = 8,
+              fontsize_row = 6,
+              fontsize_col = 6)
+
+ggsave("/Users/libingchen/Desktop/R_plot/4_heatmap/heatmap.png",
+       plot = p$gtable,
+       width = 6,
+       height = 6,
+       dpi = 300,
+       bg = "white")
+
+```
