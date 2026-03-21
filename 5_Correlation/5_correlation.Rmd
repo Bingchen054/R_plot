@@ -1,0 +1,150 @@
+---
+title: "Correlation"
+output:
+  pdf_document: default
+  html_document: default
+date: "2026-03-22"
+---
+
+
+```{r setup}
+# install.packages("corrplot")
+library(corrplot)
+```
+
+
+# 2.loading data
+```{r read-data}
+# Input file (use full path, safest way)
+inputFile = "/Users/libingchen/Desktop/R_plot/5_Correlation/corelation.txt"
+
+# Read data
+rt = read.table(inputFile, sep = "\t", header = TRUE, row.names = 1)
+
+# Transpose (samples × variables)
+rt = t(rt)
+
+# Check data
+dim(rt)
+head(rt[, 1:5])
+```
+
+# 3.correlation
+```{r correlation}
+# Compute Pearson correlation matrix
+M = cor(rt, method = "pearson")
+
+# Preview correlation matrix
+dim(M)
+round(M[1:5, 1:5], 2)
+```
+
+# 4.p-value
+
+```{r pvalue-function}
+# Function to compute p-values for correlation matrix
+cor.mtest <- function(mat, ...) {
+  mat <- as.matrix(mat)
+  n <- ncol(mat)
+  p.mat <- matrix(NA, n, n)
+  diag(p.mat) <- 0
+  
+  for (i in 1:(n - 1)) {
+    for (j in (i + 1):n) {
+      tmp <- cor.test(mat[, i], mat[, j], ...)
+      p.mat[i, j] <- p.mat[j, i] <- tmp$p.value
+    }
+  }
+  colnames(p.mat) <- rownames(p.mat) <- colnames(mat)
+  p.mat
+}
+
+# Calculate p-value matrix
+p.mat = cor.mtest(rt)
+
+# Preview
+dim(p.mat)
+round(p.mat[1:5, 1:5], 3)
+```
+
+```{r save-data}
+write.csv(rt,
+          file = "/Users/libingchen/Desktop/R_plot/5_Correlation/rt.csv",
+          row.names = TRUE)
+```
+
+
+# 5.plot
+```{r corrplot-p1}
+library(corrplot)
+
+inputFile = "/Users/libingchen/Desktop/R_plot/5_Correlation/corelation.txt"
+
+rt = read.table(inputFile, sep = "\t", header = TRUE, row.names = 1)
+rt = t(rt)
+M = cor(rt, method = "pearson")
+
+corrplot(M,
+         method = "circle",
+         order = "hclust",
+         type = "upper",
+         col = colorRampPalette(c("#2166AC", "white", "#B2182B"))(100),
+         tl.col = "black",
+         tl.cex = 0.6,
+         tl.srt = 45,
+         cl.cex = 0.7,
+         addgrid.col = "grey90"
+)
+
+png("/Users/libingchen/Desktop/R_plot/5_Correlation/corplot1.png",
+    width = 6, height = 6, units = "in", res = 300)
+
+corrplot(M,
+         method = "circle",
+         order = "hclust",
+         type = "upper",
+         col = colorRampPalette(c("#2166AC", "white", "#B2182B"))(100),
+         tl.col = "black",
+         tl.cex = 0.6,
+         tl.srt = 45,
+         cl.cex = 0.7,
+         addgrid.col = "grey90"
+)
+
+dev.off()
+```
+```{r corrplot-p2}
+
+corrplot(M,
+         order = "original",
+         method = "color",
+         col = colorRampPalette(c("#2166AC", "white", "#B2182B"))(100),
+         addCoef.col = "black",
+         number.cex = 0.6,
+         diag = TRUE,
+         tl.col = "black",
+         tl.cex = 0.6,
+         tl.srt = 45,
+         addgrid.col = "grey90",
+         cl.cex = 0.7
+)
+
+png("/Users/libingchen/Desktop/R_plot/5_Correlation/corplot2.png",
+    width = 6, height = 6, units = "in", res = 300)
+
+corrplot(M,
+         order = "original",
+         method = "color",
+         col = colorRampPalette(c("#2166AC", "white", "#B2182B"))(100),
+         addCoef.col = "black",
+         number.cex = 0.6,
+         diag = TRUE,
+         tl.col = "black",
+         tl.cex = 0.6,
+         tl.srt = 45,
+         addgrid.col = "grey90",
+         cl.cex = 0.7
+)
+
+dev.off()
+```
