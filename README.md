@@ -44,9 +44,9 @@ This repository will contain **40 commonly used plots for statistics, data scien
 </td>
 
 <td align="center">
-<a href="5_Boxplot">
-<img src="5_Boxplot/boxplot.png" width="300"><br>
-<b>5. Boxplot</b>
+<a href="5_Correlation">
+<img src="5_Correlation/corplot1.png" width="300"><br>
+<b>5. Correlation</b>
 </a>
 </td>
 
