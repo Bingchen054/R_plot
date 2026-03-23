@@ -51,9 +51,9 @@
 </td>
 
 <td align="center">
-<a href="6_ROC">
-<img src="6_ROC/roc.png" width="300"><br>
-<b>6. ROC Curve</b>
+<a href="6_Correlation-2">
+<img src="network_heatmap" width="300"><br>
+<b>6. Correlation-2</b>
 </a>
 </td>
 
