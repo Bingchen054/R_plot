@@ -52,7 +52,7 @@
 
 <td align="center">
 <a href="6_Correlation-2">
-<img src="network_heatmap.png" width="300"><br>
+<img src="6_Correlation-2/network_heatmap.png" width="300" alt="Correlation-2"><br>
 <b>6. Correlation-2</b>
 </a>
 </td>
