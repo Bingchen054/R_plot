@@ -2,7 +2,8 @@
 
 📊 Collection of **R scripts for statistical visualization and exploratory data analysis**.
 
-🧬 This repository will coain **20 commonly used plots for statistics, data science, econometric, and bioinformatics.**
+🧬 This repository will coain **10 commonly used plots for statistics, data science, econometric, and bioinformatics.**
+
 
 ---
 
